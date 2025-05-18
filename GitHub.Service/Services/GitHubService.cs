@@ -38,7 +38,6 @@ namespace GitHub.Service.Services
                     var languagesDict = await _client.Repository.GetAllLanguages(repo.Owner.Login, repo.Name);
                     var pullRequests = await _client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name);
 
-                    // טיפול במאגרים ריקים
                     DateTimeOffset lastCommitDate = repo.UpdatedAt;
                     try
                     {
@@ -50,11 +49,9 @@ namespace GitHub.Service.Services
                     }
                     catch (ApiException ex) when (ex.Message.Contains("Git Repository is empty"))
                     {
-                        // המאגר ריק, נשתמש בתאריך העדכון של המאגר במקום
                         Console.WriteLine($"Repository {repo.Name} is empty. Using repository updated date instead.");
                     }
 
-                    // שינוי: שימוש בשמות השפות במקום ב-Key
                     var languages = languagesDict.Select(l => l.Name).ToList();
 
                     result.Add(new RepositoryInfo
@@ -72,9 +69,7 @@ namespace GitHub.Service.Services
                 }
                 catch (Exception ex)
                 {
-                    // לוג שגיאה כללית
                     Console.WriteLine($"Error processing repository {repo.Name}: {ex.Message}");
-                    // המשך לפריט הבא
                 }
             }
 
@@ -83,7 +78,6 @@ namespace GitHub.Service.Services
 
         public async Task<IEnumerable<RepositoryInfo>> SearchRepositoriesAsync(string? name = null, string? language = null, string? username = null)
         {
-            // שינוי: שימוש בקונסטרקטור עם מחרוזת חיפוש
             var searchQuery = new List<string>();
 
             if (!string.IsNullOrEmpty(name))
@@ -95,18 +89,15 @@ namespace GitHub.Service.Services
             var searchQueryString = string.Join(" ", searchQuery);
             var request = new SearchRepositoriesRequest(searchQueryString);
 
-            // הגדרת שפת התכנות אם צוינה
             if (!string.IsNullOrEmpty(language))
             {
                 try
                 {
-                    // נסה להמיר את מחרוזת השפה לאנום Language
                     var languageEnum = (Language)Enum.Parse(typeof(Language), language, true);
                     request.Language = languageEnum;
                 }
                 catch (ArgumentException)
                 {
-                    // אם ההמרה נכשלה, התעלם מפרמטר השפה
                     Console.WriteLine($"Warning: Language '{language}' is not recognized by Octokit.");
                 }
             }
@@ -114,14 +105,13 @@ namespace GitHub.Service.Services
             var searchResult = await _client.Search.SearchRepo(request);
             var result = new List<RepositoryInfo>();
 
-            foreach (var repo in searchResult.Items.Take(10)) // הגבלה ל-10 כדי להימנע ממגבלות קצב
+            foreach (var repo in searchResult.Items.Take(10)) 
             {
                 try
                 {
                     var languagesDict = await _client.Repository.GetAllLanguages(repo.Owner.Login, repo.Name);
                     var pullRequests = await _client.PullRequest.GetAllForRepository(repo.Owner.Login, repo.Name);
 
-                    // טיפול במאגרים ריקים
                     DateTimeOffset lastCommitDate = repo.UpdatedAt;
                     try
                     {
@@ -133,11 +123,9 @@ namespace GitHub.Service.Services
                     }
                     catch (ApiException ex) when (ex.Message.Contains("Git Repository is empty"))
                     {
-                        // המאגר ריק, נשתמש בתאריך העדכון של המאגר במקום
                         Console.WriteLine($"Repository {repo.Name} is empty. Using repository updated date instead.");
                     }
 
-                    // שינוי: שימוש בשמות השפות במקום ב-Key
                     var languages = languagesDict.Select(l => l.Name).ToList();
 
                     result.Add(new RepositoryInfo
@@ -155,9 +143,7 @@ namespace GitHub.Service.Services
                 }
                 catch (Exception ex)
                 {
-                    // לוג שגיאה כללית
                     Console.WriteLine($"Error processing repository {repo.Name}: {ex.Message}");
-                    // המשך לפריט הבא
                 }
             }
 
