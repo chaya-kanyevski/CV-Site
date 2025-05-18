@@ -1,0 +1,11 @@
+# .NET Core
+bin/
+obj/
+*.db
+appsettings.*.json
+secrets.json
+.vscode/
+*.suo
+*.ncrunch*
+*.user
+*.vs
